@@ -20,15 +20,19 @@ The ingestion of a raw CSV file into the S3 `raw-data/` directory automatically 
 4. **Feature Engineering:** Dynamically calculates a new `lead_time_days` metric by measuring the delta between the `scheduled_date` and `appointment_date`.
 5. **Data Loading:** Writes the transformed, BI-ready dataset into the S3 `processed-data/` directory.
 
+## Business Intelligence & Visualization
+The processed dataset is linked to Amazon QuickSight via Amazon Athena. Key metrics visualized in the final dashboard include:
+
+* **Revenue Leakage Analysis:** A bar chart aggregating estimated_revenue_loss_gbp by clinic and appointment type.
+* **Temporal Heat Maps:** Identification of "Danger Zones" by mapping no-show volumes against appointment hour and day of the week.
+* **Patient Demographics:** Donut charts segmenting no-show probabilities by gender and chronic condition status.
+* **Lead Time Correlation:** Scatter plots analyzing the relationship between booking advance time and the likelihood of a missed appointment.
+
+  
 ## Technical Challenges & Solutions
 * **Recursion Prevention:** Engineered conditional logic within the Lambda handler to verify the S3 object prefix, preventing infinite execution loops caused by the `put_object` event.
 * **Compute Optimization:** Profiled the function's memory usage and execution time, manually adjusting Lambda timeout thresholds to successfully process larger datasets.
 * **IAM Policy Debugging:** Diagnosed silent execution failures by identifying implicit region restrictions in CloudWatch; resolved by attaching the `AWSLambdaBasicExecutionRole` policy to grant broader logging permissions.
 
-## Phase 2: Business Intelligence Integration (Pending)
-*Note: Currently awaiting AWS account billing verification to provision premium BI services.*
+![Dashboard Screenshot](quicksight_dashboard.png)
 
-Once the curated S3 data is mapped via **Amazon Athena**, an interactive **Amazon QuickSight** dashboard will be developed to visualize:
-* Financial impact and revenue leakage segmented by clinic and appointment type.
-* Temporal heat maps identifying the highest-risk appointment windows for no-shows.
-* Multivariate correlation analysis between clinic distance, booking lead time, and no-show probabilities.
