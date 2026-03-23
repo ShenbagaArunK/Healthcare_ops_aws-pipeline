@@ -1,0 +1,71 @@
+===========================================================================
+PROJECT: AWS SERVERLESS HEALTHCARE DATA PIPELINE (END-TO-END)
+DESCRIPTION: Automated ETL and BI for Clinic Congestion & No-Show Analysis
+===========================================================================
+
+STEP 1: DATA LAKE FOUNDATION (AMAZON S3)
+---------------------------------------------------------
+1. Create a globally unique S3 bucket (e.g., 'clinic-congestion-analyzer').
+2. Enable "Bucket Versioning" for data protection.
+3. Create two folders inside the bucket:
+   - /raw-data/ (Landing zone for incoming CSV files)
+   - /processed-data/ (Destination for cleaned, transformed data)
+
+STEP 2: IAM SECURITY & PERMISSIONS
+---------------------------------------------------------
+1. Create a Lambda Execution Role in the IAM Console.
+2. Attach the following policies:
+   - 'AmazonS3FullAccess' (To read/write data between folders).
+   - 'AWSLambdaBasicExecutionRole' (To enable CloudWatch logging across regions).
+3. Ensure the trust relationship allows the 'lambda.amazonaws.com' service.
+
+STEP 3: SERVERLESS ETL DEVELOPMENT (AWS LAMBDA)
+---------------------------------------------------------
+1. Create a Python 3.x Lambda function (e.g., 'clinic-data-cleaner').
+2. Assign the IAM Role created in Step 2.
+3. Configuration Tuning:
+   - Increase 'Timeout' to 1 minute (prevents failure on large CSV files).
+   - Increase 'Memory' to 256MB/512MB for faster processing.
+4. Deploy the ETL Script (Python/Boto3):
+   - Logic: Standardizes headers (lowercase/underscores).
+   - Logic: Drops rows with null values in critical fields (age/distance).
+   - Logic: Maps boolean flags (Yes/No to 1/0).
+   - Feature Engineering: Calculates 'lead_time_days' from date deltas.
+5. Add an S3 Trigger:
+   - Event: 'All object create events'.
+   - Prefix: 'raw-data/'.
+   - Suffix: '.csv'.
+
+STEP 4: DATA CATALOGING (AMAZON ATHENA)
+---------------------------------------------------------
+1. Configure Athena 'Query Result Location' to a specific S3 folder.
+2. Execute 'CREATE EXTERNAL TABLE' SQL script.
+3. Define the schema for all 31 columns (IDs, Dates, Demographics, Fees).
+4. Point the 'LOCATION' parameter to the S3 '/processed-data/' folder.
+5. Run 'SELECT *' to verify the table maps correctly to the S3 CSV file.
+
+STEP 5: BUSINESS INTELLIGENCE (AMAZON QUICKSIGHT)
+---------------------------------------------------------
+1. Complete Account Signup (Ensure account is verified/eligible for trial), Update to paid user for sign-up in quicksight.
+2. Configure Security Permissions:
+   - Go to 'Manage QuickSight' -> 'Security & permissions'.
+   - Grant QuickSight explicit access to the S3 bucket and Athena.
+3. Create Data Connection:
+   - Select 'Athena' as the data source.
+   - Import the table into 'SPICE' (In-Memory Engine) for high performance.
+4. Build Dashboard Visuals:
+   - Revenue Leakage: Vertical Bar Chart (Sum of estimated_revenue_loss by clinic_type).
+   - Danger Zones: Heat Map (Rows: Weekday, Columns: Hour, Value: Sum of no_shows).
+   - Patient Risk: Scatter Plot (X: Lead time, Y: No-shows).
+
+STEP 6: MONITORING & MAINTENANCE
+---------------------------------------------------------
+1. Use CloudWatch Logs to debug any future ingestion errors.
+2. Set a 30-day reminder to review QuickSight subscription status.
+3. Export the final Dashboard to PDF/Shareable link for stakeholders.
+
+----------------------------------------------------------
+Lambda and Athena files with code is also attached.
+===========================================================================
+END OF INSTRUCTIONS
+===========================================================================
