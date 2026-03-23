@@ -66,6 +66,8 @@ STEP 6: MONITORING & MAINTENANCE
 
 ----------------------------------------------------------
 Lambda and Athena files with code is also attached.
+----------------------------------------------------------
+A screenshot of the QuickSight Dashboard is added.
 ===========================================================================
 END OF INSTRUCTIONS
 ===========================================================================

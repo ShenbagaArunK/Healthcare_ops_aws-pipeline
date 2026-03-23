@@ -1,3 +1,5 @@
+-- Run this code to create table for the dataset attached in the data file.
+
 CREATE EXTERNAL TABLE IF NOT EXISTS clinic_data (
     appointment_id INT,
     patient_id INT,
